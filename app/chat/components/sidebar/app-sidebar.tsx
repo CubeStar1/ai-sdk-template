@@ -6,6 +6,7 @@ import Link from "next/link";
 import { PlusIcon } from "../icons";
 import { useConversationsContext } from "@/hooks/conversations-context";
 import { SidebarHistory } from "./sidebar-history";
+import { FileUpload } from "./file-upload";
 import { SidebarUserNav } from "./sidebar-user-nav";
 import Image from "next/image"
 import { Button } from "@/components/ui/button";
@@ -86,7 +87,10 @@ export function AppSidebar({ user }: AppSidebarProps) {
         <SidebarHistory user={user} />
       </SidebarContent>
 
-      <SidebarFooter>{user && <SidebarUserNav user={user} />}</SidebarFooter>
+      <SidebarFooter>
+        <FileUpload />
+        {user && <SidebarUserNav user={user} />}
+      </SidebarFooter>
     </Sidebar>
   );
 }

@@ -1,8 +1,12 @@
 import { streamText, CoreMessage } from 'ai';
 import { getSystemPrompt } from '@/lib/prompts/system-prompt';
 import { querySupabaseTool } from '@/lib/tools/query-supabase';
+import { generateChart } from '@/lib/tools/generate-chart';
 import { tavilySearchTool } from '@/lib/tools/tavily-search';
+import { ragRetrievalTool } from '@/lib/tools/rag-retrieval';
+import { generateImage } from '@/lib/tools/generate-image';
 import { createOpenAI } from '@ai-sdk/openai';
+import { myProvider } from '@/lib/ai/providers';
 import { getUser } from '@/hooks/get-user';
 
 const openai = createOpenAI({
@@ -22,18 +26,24 @@ export async function POST(req: Request) {
       });
     }
 
-    const { messages }: { messages: CoreMessage[] } = await req.json();
+    const { messages, data, selectedModel }: { messages: CoreMessage[], data: any, selectedModel: string } = await req.json();
     const systemPrompt = await getSystemPrompt(user.id);
 
     const result = streamText({
-      model: openai('gpt-4o-mini'),
+      model: myProvider.languageModel(selectedModel as any),
       system: systemPrompt,
       messages,
       tools: {
         querySupabase: querySupabaseTool,
+        generateChart: generateChart,
         tavilySearch: tavilySearchTool,
+        ragRetrieval: ragRetrievalTool,
+        generateImage: generateImage,
       },
-      maxSteps: 5, // allow up to 5 steps
+      maxSteps: 10, 
+      onError: (error) => {
+        console.error('Error:', error);
+      },
     });
 
     // Stream the response back to the client so `useChat` can consume it

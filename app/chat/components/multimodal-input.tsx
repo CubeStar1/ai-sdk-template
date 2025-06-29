@@ -6,11 +6,18 @@ import { Button } from "@/components/ui/button";
 import { ArrowUp, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+import { models } from "@/lib/ai/providers";
+import { ModelSelector } from "./model-selector";
+
 interface MultimodalInputProps {
   value: string;
   onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   isLoading: boolean;
+  modelState: {
+    selectedModel: string;
+    setSelectedModel: (model: string) => void;
+  };
 }
 
 export function MultimodalInput({
@@ -18,6 +25,7 @@ export function MultimodalInput({
   onChange,
   handleSubmit,
   isLoading,
+  modelState,
 }: MultimodalInputProps) {
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -45,6 +53,10 @@ export function MultimodalInput({
             }
           }}
         />
+
+        <div className="absolute bottom-2 left-2">
+          <ModelSelector models={models} selectedModel={modelState.selectedModel} setSelectedModel={modelState.setSelectedModel} />
+        </div>
 
         <div className="absolute bottom-2 right-2 flex items-center gap-2">
           {isLoading ? (

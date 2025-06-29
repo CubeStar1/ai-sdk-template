@@ -7,28 +7,50 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Database, Search, ChevronDown, Code2, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { Database, Search, ChevronDown, Code2, CheckCircle2, AlertCircle, Loader2, FileText, BarChart, Image as ImageIcon } from 'lucide-react';
 import { SupabaseQuery } from "./tool-displays/supabase-query";
+import { ChartDisplay } from './chart-display';
+import { ImageDisplay } from './image-display';
 import { TavilySearchResult } from "./tool-displays/tavily-search-result";
+import { RagResultDisplay } from './rag-result-display';
+import { FunctionSquareIcon } from "lucide-react";
 
 const TOOL_DISPLAY_NAMES: { [key: string]: string } = {
   querySupabase: "Database Query",
+  generateChart: "Chart Generation",
   tavilySearch: "Searching the web",
+  ragRetrieval: "Retrieving from Documents",
+  generateImage: "Generating Image",
 };
 
 const TOOL_ICONS: { [key: string]: React.ComponentType<{ className?: string }> } = {
   querySupabase: Database,
+  generateChart: BarChart,
   tavilySearch: Search,
-};
+  ragRetrieval: FileText,
+  generateImage: ImageIcon,
+  };
 
 const TOOL_COLORS: { [key: string]: { bg: string; text: string } } = {
   querySupabase: {
     bg: "bg-blue-50 dark:bg-blue-950/20",
     text: "text-blue-700 dark:text-blue-300"
   },
+  generateChart: {
+    bg: "bg-green-50 dark:bg-green-950/20",
+    text: "text-green-700 dark:text-green-300"
+  },
   tavilySearch: {
     bg: "bg-emerald-50 dark:bg-emerald-950/20", 
     text: "text-emerald-700 dark:text-emerald-300"
+  },
+  ragRetrieval: {
+    bg: "bg-purple-50 dark:bg-purple-950/20",
+    text: "text-purple-700 dark:text-purple-300"
+  },
+  generateImage: {
+    bg: "bg-orange-50 dark:bg-orange-950/20",
+    text: "text-orange-700 dark:text-orange-300"
   },
 };
 
@@ -50,11 +72,16 @@ export function ToolResultDisplay({ toolCall }: { toolCall: ToolInvocation }) {
   
   if (isCompleted) {
     try {
-      data = JSON.parse(toolCall.result);
+      // The tool result can be a string or an object.
+      // If it's a string, parse it. If it's an object, use it directly.
+      data = typeof toolCall.result === 'string' 
+        ? JSON.parse(toolCall.result) 
+        : toolCall.result;
       hasError = !!data.error;
     } catch (e) {
       hasError = true;
-      data = { error: `Parse error: ${e}` };
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      data = { error: `Parse error: ${errorMessage}` };
     }
   }
 
@@ -88,18 +115,18 @@ export function ToolResultDisplay({ toolCall }: { toolCall: ToolInvocation }) {
                 <AlertCircle className="w-4 h-4 text-red-500" />
                 <span>{toolDisplayName}</span>
               </div>
-              <div className="mt-2 p-3 bg-red-50 dark:bg-red-950/20 rounded-lg border border-red-200 dark:border-red-800">
+              {/* <div className="mt-2 p-3 bg-red-50 dark:bg-red-950/20 rounded-lg border border-red-200 dark:border-red-800">
                 <div className="flex items-center gap-2 text-red-700 dark:text-red-300">
                   <AlertCircle className="w-4 h-4" />
                   <span className="text-sm font-medium">Error occurred</span>
                 </div>
                 <p className="text-sm text-red-600 dark:text-red-400 mt-1">{data.error}</p>
-              </div>
+              </div> */}
             </>
           )}
           
           {isCompleted && !hasError && (
-            <Accordion type="single" collapsible className="w-full">
+            <Accordion type="single" collapsible className="w-full" defaultValue={toolCall.toolCallId}>
               <AccordionItem value={toolCall.toolCallId} className="border-none">
                 <AccordionTrigger className="hover:no-underline p-0 text-left [&>svg]:hidden">
                   <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium ${colors.bg} ${colors.text} hover:opacity-80 transition-opacity`}>
@@ -109,11 +136,20 @@ export function ToolResultDisplay({ toolCall }: { toolCall: ToolInvocation }) {
                 </AccordionTrigger>
               <AccordionContent className="pt-4 max-w-3xl">
                 <div className="space-y-4">
-                  {/* Input Section */}
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Code2 className="w-4 h-4 text-gray-500" />
-                      <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm">
+                  <Accordion type="single" collapsible className="w-full">
+                    <AccordionItem value={toolCall.toolCallId} className="border-none">
+                      <AccordionTrigger className="hover:no-underline p-0 text-left [&>svg]:hidden">
+                        <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium ${colors.bg} ${colors.text} hover:opacity-80 transition-opacity`}>
+                          <FunctionSquareIcon className="w-4 h-4" />
+                          <span>{toolCall.toolName}</span>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent className="pt-4 max-w-3xl">
+                        {/* Input Section */}
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Code2 className="w-4 h-4 text-gray-500" />
+                            <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm">
                         Query Parameters
                       </h4>
                     </div>
@@ -123,6 +159,9 @@ export function ToolResultDisplay({ toolCall }: { toolCall: ToolInvocation }) {
                       </pre>
                     </div>
                   </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                  </Accordion>
 
                   {/* Result Section */}
                   <div className="space-y-2">
@@ -134,7 +173,10 @@ export function ToolResultDisplay({ toolCall }: { toolCall: ToolInvocation }) {
                     </div>
 
                         {toolCall.toolName === 'querySupabase' && <SupabaseQuery data={data} />}
+                        {toolCall.toolName === 'generateChart' && <ChartDisplay {...data} />}
                         {toolCall.toolName === 'tavilySearch' && <TavilySearchResult data={data} />}
+                        {toolCall.toolName === 'ragRetrieval' && <RagResultDisplay chunks={data.chunks} />}
+                        {toolCall.toolName === 'generateImage' && <ImageDisplay {...data} />}
 
                   </div>
                 </div>

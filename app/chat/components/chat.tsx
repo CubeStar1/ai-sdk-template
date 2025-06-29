@@ -6,6 +6,8 @@ import { MultimodalInput } from "./multimodal-input";
 import { ChatHeader } from "./chat-header";
 import { Message } from "ai";
 import { saveMessages } from "../actions";
+import { useState } from "react";
+import { models } from "@/lib/ai/providers";
 
 interface ChatProps {
   id: string;
@@ -13,7 +15,8 @@ interface ChatProps {
 }
 
 export function Chat({ id, initialMessages = [] }: ChatProps) {
-  const { messages, input, handleInputChange, handleSubmit, isLoading, data } = useChat({
+  const [selectedModel, setSelectedModel] = useState(models[0].value);
+  const { messages, input, handleInputChange, handleSubmit, isLoading, data, } = useChat({
     initialMessages,
     api: '/api/chat',
     onFinish: async (message) => {
@@ -25,6 +28,12 @@ export function Chat({ id, initialMessages = [] }: ChatProps) {
     onError: async (error) => {
       console.error("Error fetching response:", error);
       // You could add an error message to the chat here if you want
+    },
+    experimental_prepareRequestBody: (body) => {
+      return {
+        ...body,
+        selectedModel,
+      };
     },
   });
 
@@ -64,6 +73,10 @@ export function Chat({ id, initialMessages = [] }: ChatProps) {
             onChange={handleInputChange}
             handleSubmit={customHandleSubmit}
             isLoading={isLoading}
+            modelState={{
+              selectedModel,
+              setSelectedModel,
+            }}
           />
         </div>
       </div>

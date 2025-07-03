@@ -42,10 +42,10 @@ export function ModelSelector({ models, selectedModel, setSelectedModel }: Model
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
-            variant="outline"
+            variant="ghost"
             role="combobox"
             aria-expanded={open}
-            className="w-[200px] justify-between"
+            className="w-[200px] justify-between text-muted-foreground hover:text-foreground"
           >
             {selectedModelLabel}
             <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -61,7 +61,7 @@ export function ModelSelector({ models, selectedModel, setSelectedModel }: Model
                   key={model.value}
                   value={model.value}
                   onSelect={(currentValue) => {
-                    setSelectedModel(currentValue === selectedModel ? "" : currentValue)
+                    setSelectedModel(currentValue)
                     setOpen(false)
                   }}
                 >
@@ -84,7 +84,7 @@ export function ModelSelector({ models, selectedModel, setSelectedModel }: Model
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
-        <Button variant="outline" className="w-[200px] justify-between">
+        <Button variant="ghost" className="w-[200px] justify-between text-muted-foreground hover:text-foreground">
           {selectedModelLabel}
           <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -100,7 +100,7 @@ export function ModelSelector({ models, selectedModel, setSelectedModel }: Model
                   key={model.value}
                   value={model.value}
                   onSelect={(currentValue) => {
-                    setSelectedModel(currentValue === selectedModel ? "" : currentValue)
+                    setSelectedModel(currentValue)
                     setOpen(false)
                   }}
                 >

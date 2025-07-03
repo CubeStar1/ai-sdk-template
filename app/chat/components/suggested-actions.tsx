@@ -4,10 +4,11 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Message } from "ai";
 import { memo } from "react";
+import { saveMessages } from "../actions";
 interface SuggestedActionsProps {
   chatId: string;
   append: (message: Message) => Promise<string | null | undefined>;
-  handleSubmit: (e: React.FormEvent<Element>, value: string) => void;
+  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
 }
 function PureSuggestedActions({
   chatId,
@@ -16,32 +17,32 @@ function PureSuggestedActions({
 }: SuggestedActionsProps) {
   const suggestedActions = [
     {
-      title: "Analyze Plant Health",
-      label: "Get insights from recent plant health analyses",
+      title: "Analyze Heart Rate Trends",
+      label: "Analyze and visualize my heart rate over the past 6 months",
       action:
-        "Analyze the latest plant health data and provide insights about plant conditions and health metrics.",
+        "Plot my average heart rate over the past few months please use efficent queries since theres a lot of data, I want month wise averages. Also provide insights about heart rate conditions and health metrics.",
     },
     {
-      title: "Pest Detection Analysis",
-      label: "Review recent pest detection results",
+      title: "Analyze Medical Records",
+      label: "Review recent medical records",
       action:
-        "Analyze the latest pest detection data and provide insights about pest types and their prevalence.",
+        "Analyze the latest medical records data and provide insights about medical conditions and health metrics.",
     },
     {
-      title: "Compare Plant Data",
-      label: "Compare health and pest data",
+      title: "Visually Analyze Sensor Data",
+      label: "Compare heart rate and blood pressure data",
       action:
-        "Compare recent plant health analyses with pest detection results to identify patterns and correlations.",
+        "Compare recent heart rate and blood pressure data to identify patterns and correlations.",
     },
     {
-      title: "Health Trends",
-      label: "Analyze plant health trends",
+      title: "Analyze nutrition logs",
+      label: "Analyze nutrition logs",
       action:
-        "Analyze historical plant health data to identify trends and patterns over time.",
+        "Analyze historical nutrition data to identify trends and patterns over time.",
     },
   ];
   return (
-    <div className="grid sm:grid-cols-2 gap-2 w-full">
+    <div className="grid sm:grid-cols-2 gap-2 w-full pb-2">
       {suggestedActions.map((suggestedAction, index) => (
         <motion.div
           initial={{
@@ -64,17 +65,19 @@ function PureSuggestedActions({
         >
           <Button
             variant="ghost"
-            onClick={(e) => {
-              const event = new Event("submit", {
-                bubbles: true,
-                cancelable: true,
-              }) as unknown as React.FormEvent;
-              handleSubmit(event, suggestedAction.action);
+            onClick={async () => {
+              const userMessage: Message = {
+                id: crypto.randomUUID(),
+                role: 'user',
+                content: suggestedAction.action,
+              };
+              await saveMessages([userMessage], chatId);
+              await append(userMessage);
             }}
-            className="text-left border rounded-xl px-4 py-3.5 text-sm flex-1 gap-1 sm:flex-col w-full h-auto justify-start items-start"
+            className="text-left border rounded-xl px-4 py-3.5 text-sm gap-1 sm:flex-col w-full h-auto justify-start items-start sm:items-stretch"
           >
-            <span className="font-medium">{suggestedAction.title}</span>
-            <span className="text-muted-foreground">
+            <span className="font-medium truncate">{suggestedAction.title}</span>
+            <span className="text-muted-foreground truncate">
               {suggestedAction.label}
             </span>
           </Button>

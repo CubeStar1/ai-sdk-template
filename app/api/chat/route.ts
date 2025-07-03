@@ -1,17 +1,13 @@
-import { streamText, CoreMessage } from 'ai';
-import { getSystemPrompt } from '@/lib/prompts/system-prompt';
-import { querySupabaseTool } from '@/lib/tools/query-supabase';
-import { generateChart } from '@/lib/tools/generate-chart';
-import { tavilySearchTool } from '@/lib/tools/tavily-search';
-import { ragRetrievalTool } from '@/lib/tools/rag-retrieval';
-import { generateImage } from '@/lib/tools/generate-image';
-import { createOpenAI } from '@ai-sdk/openai';
-import { myProvider } from '@/lib/ai/providers';
-import { getUser } from '@/hooks/get-user';
+import { streamText, CoreMessage , smoothStream} from 'ai';
+import { getSystemPrompt } from '@/app/chat/lib/ai/prompts/system-prompt';
+import { querySupabaseTool } from '@/app/chat/lib/ai/tools/query-supabase';
+import { generateChart } from '@/app/chat/lib/ai/tools/generate-chart';
+import { tavilySearchTool } from '@/app/chat/lib/ai/tools/tavily-search';
+import { ragRetrievalTool } from '@/app/chat/lib/ai/tools/rag-retrieval';
+import { generateImage } from '@/app/chat/lib/ai/tools/generate-image';
+import { myProvider } from '@/app/chat/lib/ai/providers/providers';
+import { getUser } from '@/app/chat/hooks/get-user';
 
-const openai = createOpenAI({
-  apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
-});
 
 export const maxDuration = 30;
 
@@ -27,7 +23,8 @@ export async function POST(req: Request) {
     }
 
     const { messages, data, selectedModel }: { messages: CoreMessage[], data: any, selectedModel: string } = await req.json();
-    const systemPrompt = await getSystemPrompt(user.id);
+    const systemPrompt = await getSystemPrompt(user);
+    console.log(selectedModel);
 
     const result = streamText({
       model: myProvider.languageModel(selectedModel as any),
@@ -44,6 +41,10 @@ export async function POST(req: Request) {
       onError: (error) => {
         console.error('Error:', error);
       },
+      experimental_transform: smoothStream({
+        chunking: 'word',
+      }),
+      toolCallStreaming: true,
     });
 
     // Stream the response back to the client so `useChat` can consume it

@@ -1,4 +1,4 @@
-import useUser from "@/hooks/use-user";
+import useUser from "@/app/chat/hooks/use-user";
 import { cn } from "@/lib/utils";
 import React from "react";
 import Image from "next/image";

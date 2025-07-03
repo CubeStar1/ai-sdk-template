@@ -5,11 +5,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ArrowUp, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SuggestedActions } from "./suggested-actions";
 
-import { models } from "@/lib/ai/providers";
+import { models } from "@/app/chat/lib/ai/providers/providers";
 import { ModelSelector } from "./model-selector";
+import { Message } from "ai";
 
 interface MultimodalInputProps {
+  chatId: string;
+  messages: Message[];
+  append: (message: Message) => Promise<string | null | undefined>;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
@@ -21,6 +26,9 @@ interface MultimodalInputProps {
 }
 
 export function MultimodalInput({
+  chatId,
+  messages,
+  append,
   value,
   onChange,
   handleSubmit,
@@ -35,7 +43,15 @@ export function MultimodalInput({
       onSubmit={handleSubmit}
       className="relative flex flex-col gap-4"
     >
+      
       <div className="relative">
+        {messages.length === 0 && (
+                <SuggestedActions 
+                  append={append} 
+                  chatId={chatId} 
+                  handleSubmit={handleSubmit}
+                />
+              )}
         <Textarea
           value={value}
           onChange={onChange}
@@ -54,7 +70,7 @@ export function MultimodalInput({
           }}
         />
 
-        <div className="absolute bottom-2 left-2">
+        <div className="absolute bottom-2 left-2 gap-2">
           <ModelSelector models={models} selectedModel={modelState.selectedModel} setSelectedModel={modelState.setSelectedModel} />
         </div>
 

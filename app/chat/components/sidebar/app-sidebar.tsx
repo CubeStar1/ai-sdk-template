@@ -4,7 +4,7 @@ import { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { PlusIcon } from "../icons";
-import { useConversationsContext } from "@/hooks/conversations-context";
+import { useConversationsContext } from "../../hooks/conversations-context";
 import { SidebarHistory } from "./sidebar-history";
 import { FileUpload } from "./file-upload";
 import { SidebarUserNav } from "./sidebar-user-nav";

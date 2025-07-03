@@ -2,7 +2,7 @@
 
 // The component for rendering the Supabase query results as a table
 export function SupabaseQuery({ data }: { data: any[] }) {
-  if (!data || data.length === 0) {
+  if (!data || data.length === 0 || !data[0]) {
     return <p className="text-sm text-zinc-500">No data returned from the query.</p>;
   }
 

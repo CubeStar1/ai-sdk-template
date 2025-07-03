@@ -7,7 +7,7 @@ import { ChatHeader } from "./chat-header";
 import { Message } from "ai";
 import { saveMessages } from "../actions";
 import { useState } from "react";
-import { models } from "@/lib/ai/providers";
+import { models } from "@/app/chat/lib/ai/providers/providers";
 
 interface ChatProps {
   id: string;
@@ -16,7 +16,7 @@ interface ChatProps {
 
 export function Chat({ id, initialMessages = [] }: ChatProps) {
   const [selectedModel, setSelectedModel] = useState(models[0].value);
-  const { messages, input, handleInputChange, handleSubmit, isLoading, data, } = useChat({
+  const { messages, input, setInput, handleInputChange, handleSubmit, status, data, append } = useChat({
     initialMessages,
     api: '/api/chat',
     onFinish: async (message) => {
@@ -27,7 +27,6 @@ export function Chat({ id, initialMessages = [] }: ChatProps) {
     },
     onError: async (error) => {
       console.error("Error fetching response:", error);
-      // You could add an error message to the chat here if you want
     },
     experimental_prepareRequestBody: (body) => {
       return {
@@ -37,24 +36,26 @@ export function Chat({ id, initialMessages = [] }: ChatProps) {
     },
   });
 
-  // Custom submit handler to save user messages
-  const customHandleSubmit = async (e: React.FormEvent) => {
+  // Custom submit handler to make chat feel snappy
+  const customHandleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-         
-    // Save user message before submitting
-    if (input.trim()) {
-      const userMessage: Message = {
-        id: crypto.randomUUID(),
-        role: "user" as const,
-        content: input.trim(),
-      };
-           
-      // Save user message to database
-      await saveMessages([userMessage], id);
-    }
-         
-    // Call the original handleSubmit
-    handleSubmit(e);
+    const content = input.trim();
+    if (!content) return;
+
+    const userMessage: Message = {
+      id: crypto.randomUUID(),
+      role: 'user',
+      content,
+    };
+
+    // Append message to UI and send to API
+    append(userMessage);
+
+    // Clear input
+    setInput('');
+
+    // Save message to DB in background
+    saveMessages([userMessage], id);
   };
 
   return (
@@ -62,17 +63,20 @@ export function Chat({ id, initialMessages = [] }: ChatProps) {
       <ChatHeader chatId={id} />
       <div className="flex-1 overflow-auto">
         <Messages
-          isLoading={isLoading}
+          isLoading={status === 'submitted'}
           messages={messages}
         />
       </div>
       <div className="sticky bottom-0 bg-gradient-to-t from-background to-transparent">
         <div className="mx-auto max-w-3xl px-4 pb-4">
           <MultimodalInput
+            chatId={id}
+            messages={messages}
+            append={append}
             value={input}
             onChange={handleInputChange}
             handleSubmit={customHandleSubmit}
-            isLoading={isLoading}
+            isLoading={status === 'submitted'}
             modelState={{
               selectedModel,
               setSelectedModel,

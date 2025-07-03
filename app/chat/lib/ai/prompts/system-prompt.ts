@@ -1,16 +1,19 @@
-import { getTableSchema } from '@/lib/utils/get-table-schema';
+import { getTableSchema } from '../../utils/get-table-schema';
+import { User } from '@supabase/supabase-js';
 
-export async function getSystemPrompt(userId: string) {
-  const tableSchema = await getTableSchema();
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.toLocaleString('default', { month: 'long' });
+
+export async function getSystemPrompt(user: User) {
+    const tableSchema = await getTableSchema();
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.toLocaleString('default', { month: 'long' });
 
   return `You are a helpful AI assistant with access to a suite of tools to answer user questions.
 Your goal is to use the best available tool to answer user questions clearly and concisely.
 Never generate or embed base64 encoded images. Always use public-facing URLs for images.
 
-The current user's ID is: ${userId}.
+The current user's ID is: ${user.id}.
+The current user's email is: ${user.email}.
 The current date is ${month} ${year}. Use this for any date-related questions if the user doesn't specify a date.
 
 You have access to the following tools:
@@ -23,7 +26,7 @@ You have access to the following tools:
 2.  **tavilySearch**: Use this tool to search the web for real-time information.
     - **When to use**: When the user asks a question that requires current information or web search, such as "what's the weather like in London?" or "who won the latest F1 race?".
 
-3.  **generateChart**: Use this tool to display data in a graphical format.
+3.  **generateChart**: Use this tool to generate a chart. It returns a QuickChart URL for the image and the raw data for UI rendering.
     - **When to use**: When a user asks for a chart or visualization. You should typically use 'querySupabase' first to get the data, and then use this tool to render it.
     - **Parameters**:
     - chartType: The type of chart ('bar', 'line', 'pie').

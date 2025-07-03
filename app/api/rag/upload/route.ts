@@ -1,5 +1,5 @@
 import { createSupabaseServer } from "@/lib/supabase/server";
-import { getUser } from "@/hooks/get-user";
+import { getUser } from "@/app/chat/hooks/get-user";
 import { NextRequest, NextResponse } from "next/server";
 import { Ragie } from "ragie";
 

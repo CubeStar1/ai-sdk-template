@@ -13,7 +13,7 @@ import { createSupabaseBrowser } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
-import useUser from "@/hooks/use-user";
+import useUser from "@/app/chat/hooks/use-user";
 import ManageProfile from "./manage-profile";
 import Avatar from "./avatar";
 export default function UserProfile() {

@@ -15,7 +15,7 @@ import {
   SidebarMenuAction,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { useConversationsContext } from "@/hooks/conversations-context";
+import { useConversationsContext } from "../../hooks/conversations-context";
 import { MoreHorizontalIcon, PencilEditIcon, TrashIcon } from "../icons";
 import { Button } from "@/components/ui/button";
 import {

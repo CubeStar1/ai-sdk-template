@@ -1,6 +1,6 @@
 import { createSupabaseServer } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { generateUUID } from "./utils";
+import { generateUUID } from "./lib/utils/generate-uuid";
 export default async function NewChatPage() {
   const supabase = await createSupabaseServer();
   const {

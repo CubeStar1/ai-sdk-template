@@ -1,6 +1,6 @@
 import { createSupabaseServer } from "@/lib/supabase/server";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { ConversationsProvider } from "@/hooks/conversations-context";
+import { ConversationsProvider } from "./hooks/conversations-context";
 import { AppSidebar } from "./components/sidebar/app-sidebar";
 export default async function ChatLayout({
   children,

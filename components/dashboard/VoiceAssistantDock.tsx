@@ -14,9 +14,9 @@ import { ChatColumn } from '@/app/(default)/voice-assistant/components/ChatColum
 import { PageHeader } from '@/components/ui/page-header';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { VoiceSettings } from '@/app/(default)/voice-assistant/components/VoiceSettings';
-import { getSystemPrompt } from '@/lib/prompts/system-prompt';
+import { getSystemPrompt } from '@/app/chat/lib/ai/prompts/system-prompt';
 import { fetchTopDetections } from '@/hooks/use-top-detections';
-import useUser from '@/hooks/use-user';
+import useUser from '@/app/chat/hooks/use-user';
 
 const WS_URL = process.env.NEXT_PUBLIC_WS_URL;
 

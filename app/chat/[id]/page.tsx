@@ -1,7 +1,7 @@
 import { createSupabaseServer } from "@/lib/supabase/server";
 import { Chat } from "../components/chat";
 import { notFound } from "next/navigation";
-import { getUser } from "@/hooks/get-user";
+import { getUser } from "@/app/chat/hooks/get-user";
 type Params = {
   id: string;
 };

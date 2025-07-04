@@ -13,6 +13,7 @@ import {
 import { ModeToggle } from "@/components/global/theme-switcher";
 import { memo } from "react";
 import Link from "next/link";
+import { SettingsIcon } from "lucide-react";
 
 interface ChatHeaderProps {
   chatId: string;
@@ -33,6 +34,7 @@ function PureChatHeader({ chatId }: ChatHeaderProps) {
         >
           <PanelLeft className="h-5 w-5" />
         </Button>
+
       </div>
 
       <nav className="flex-1 flex items-center justify-center">
@@ -43,7 +45,15 @@ function PureChatHeader({ chatId }: ChatHeaderProps) {
         ))}
       </nav>
 
-      <div className="flex items-center">
+      <div className="flex items-center gap-2">
+      <Button
+          variant="outline"
+          size="icon"
+          className="rounded-full"
+          onClick={() => router.push("/chat/settings")}
+        >
+          <SettingsIcon className="h-5 w-5" />
+        </Button>
         <ModeToggle />
       </div>
     </header>

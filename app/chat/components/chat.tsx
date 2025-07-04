@@ -6,8 +6,9 @@ import { MultimodalInput } from "./multimodal-input";
 import { ChatHeader } from "./chat-header";
 import { Message } from "ai";
 import { saveMessages } from "../actions";
-import { useState } from "react";
-import { models } from "@/app/chat/lib/ai/providers/providers";
+// import removed; we now use global config
+import { useAgentConfig } from "@/app/chat/lib/state/agent-context";
+
 
 interface ChatProps {
   id: string;
@@ -15,7 +16,8 @@ interface ChatProps {
 }
 
 export function Chat({ id, initialMessages = [] }: ChatProps) {
-  const [selectedModel, setSelectedModel] = useState(models[0].value);
+  const { config, setConfig } = useAgentConfig();
+  const selectedModel = config.model;
   const { messages, input, setInput, handleInputChange, handleSubmit, status, data, append } = useChat({
     initialMessages,
     api: '/api/chat',
@@ -31,8 +33,8 @@ export function Chat({ id, initialMessages = [] }: ChatProps) {
     experimental_prepareRequestBody: (body) => {
       return {
         ...body,
-        selectedModel,
-      };
+        agentConfig: config,
+      } as any; // avoid type mismatch
     },
   });
 
@@ -79,7 +81,7 @@ export function Chat({ id, initialMessages = [] }: ChatProps) {
             isLoading={status === 'submitted'}
             modelState={{
               selectedModel,
-              setSelectedModel,
+              setSelectedModel: (m) => setConfig({ ...config, model: m }),
             }}
           />
         </div>

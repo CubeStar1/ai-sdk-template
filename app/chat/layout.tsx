@@ -2,6 +2,8 @@ import { createSupabaseServer } from "@/lib/supabase/server";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { ConversationsProvider } from "./hooks/conversations-context";
 import { AppSidebar } from "./components/sidebar/app-sidebar";
+import { AgentProvider } from "./lib/state/agent-context";
+import { defaultAgentConfig } from "./config/agent-config";
 export default async function ChatLayout({
   children,
 }: {
@@ -11,8 +13,16 @@ export default async function ChatLayout({
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  const { data } = await supabase
+  .from('agent_config')
+  .select('*')
+  .eq('user_id', user?.id)
+  .single();
+
+const initialConfig = data ?? defaultAgentConfig;
   return (
-    <div className="flex h-screen">
+    <AgentProvider initialConfig={initialConfig}>
+      <div className="flex h-screen">
       <ConversationsProvider userId={user?.id ?? ""}>
         <SidebarProvider defaultOpen={true}>
           <AppSidebar user={user} />
@@ -20,5 +30,6 @@ export default async function ChatLayout({
         </SidebarProvider>
       </ConversationsProvider>
     </div>
+    </AgentProvider>
   );
 }

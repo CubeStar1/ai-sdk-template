@@ -1,10 +1,12 @@
 import { streamText, CoreMessage , smoothStream} from 'ai';
 import { getSystemPrompt } from '@/app/chat/lib/ai/prompts/system-prompt';
-import { querySupabaseTool } from '@/app/chat/lib/ai/tools/query-supabase';
-import { generateChart } from '@/app/chat/lib/ai/tools/generate-chart';
-import { tavilySearchTool } from '@/app/chat/lib/ai/tools/tavily-search';
-import { ragRetrievalTool } from '@/app/chat/lib/ai/tools/rag-retrieval';
-import { generateImage } from '@/app/chat/lib/ai/tools/generate-image';
+import { toolRegistry, ToolKey } from '@/app/chat/config/tool-registry';
+import { AgentConfig, defaultAgentConfig } from '@/app/chat/config/agent-config';
+
+
+
+
+
 import { myProvider } from '@/app/chat/lib/ai/providers/providers';
 import { getUser } from '@/app/chat/hooks/get-user';
 
@@ -22,21 +24,23 @@ export async function POST(req: Request) {
       });
     }
 
-    const { messages, data, selectedModel }: { messages: CoreMessage[], data: any, selectedModel: string } = await req.json();
-    const systemPrompt = await getSystemPrompt(user);
-    console.log(selectedModel);
+    const { messages, data, agentConfig }: { messages: CoreMessage[]; data: any; agentConfig?: AgentConfig } = await req.json();
+    const cfg = agentConfig ?? defaultAgentConfig;
+    const systemPrompt = cfg.system_prompt || (await getSystemPrompt(user));
+    console.log(cfg);
+
+    const tools: Record<string, any> = {};
+    (cfg.enabled_tools as ToolKey[]).forEach((key) => {
+      if (key in toolRegistry) {
+        tools[key] = toolRegistry[key];
+      }
+    });
 
     const result = streamText({
-      model: myProvider.languageModel(selectedModel as any),
+      model: myProvider.languageModel(cfg.model as any),
       system: systemPrompt,
       messages,
-      tools: {
-        querySupabase: querySupabaseTool,
-        generateChart: generateChart,
-        tavilySearch: tavilySearchTool,
-        ragRetrieval: ragRetrievalTool,
-        generateImage: generateImage,
-      },
+      tools,
       maxSteps: 10, 
       onError: (error) => {
         console.error('Error:', error);
